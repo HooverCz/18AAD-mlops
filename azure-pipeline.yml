@@ -1,0 +1,54 @@
+name: $(Year:yyyy).$(Month).$(Date:dd)$(Rev:.r)
+
+trigger:
+  branches:
+    include:
+      # - dev
+      - uat
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+    # Swich base on environments
+  - ${{ if startsWith(variables['Build.SourceBranch'], 'refs/heads/dev') }}:
+      # - template: variables/variables-dev.yml
+      - template: variables.yml
+  - ${{ if startsWith(variables['Build.SourceBranch'], 'refs/heads/uat') }}:
+      # - template: variables/variables-uat.yml
+      - template: variables.yml
+  - ${{ if startsWith(variables['Build.SourceBranch'], 'refs/heads/master') }}:
+      # - template: variables/variables-prod.yml
+      - template: variables.yml
+
+
+stages:
+- stage: Deploy
+  jobs:
+  - job: deploy
+    displayName: 'Deploy heart-disease workflow'
+    steps:
+
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.11'
+        addToPath: true
+
+    - script: |
+        pip install azure-ai-ml azure-cli
+      displayName: 'Install Dependencies'
+
+    - script: |
+        az login
+        python deploy_azureml_pipeline.py \
+        --subscription_id $(subscription_id) \
+        --resource_group_name $(resource_group_name) \
+        --workspace_name $(workspace_name) \
+        --mlflow_experiment_name $(mlflow_experiment_name) \
+        --registered_model_name $(registered_model_name) \
+        --test_train_ratio $(test_train_ratio) \
+        --job_owner $(job_owner) \
+        --project_name $(project_name) \
+        --business_unit $(business_unit)
+      displayName: 'Deploy azureml pipeline'

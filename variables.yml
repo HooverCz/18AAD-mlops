@@ -1,0 +1,10 @@
+variables:
+  subscription_id: "a19a8f0b-2f55-4440-9b3e-df02eb2d644d"
+  resource_group_name: "th_vyuka"
+  workspace_name: "development_workspace"
+  mlflow_experiment_name: "heart-disease-experiment"
+  registered_model_name: "heart-disease-model-lr"
+  test_train_ratio: 0.2
+  job_owner: "simon.dalecky@bighub.cz"
+  project_name: "heart-disease-classification"
+  business_unit: "18AAD"
